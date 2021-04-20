@@ -1,8 +1,8 @@
 const express = require('express');
-const { moviesMock } = require('../data/movies');
+const MovieService = require('../services/movies');
 
 const router = express.Router();
-
+const movieService = new MovieService();
 const moviesApi = (app) => {
   app.use('/api/movies', router);
 };
@@ -10,7 +10,8 @@ const moviesApi = (app) => {
 
 router.get('/', (req, res, next) => {
   try {
-    const data = moviesMock;
+    const { tags } = req.query;
+    const data = movieService.getMovies({ tags });
     res.status(200)
       .json({
         data,
@@ -23,7 +24,8 @@ router.get('/', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
   try {
-    const data = moviesMock[0];
+    const { id } = req.params;
+    const data = movieService.getMovie(id);
     res.status(200)
       .json({
         data,
@@ -36,7 +38,8 @@ router.get('/:id', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
   try {
-    const createdMovie = moviesMock[0].id;
+    const { body: movie } = req;
+    const createdMovie = movieService.createMovie({ movie });
     res.status(201)
       .json({
         data: createdMovie,
@@ -49,7 +52,9 @@ router.post('/', (req, res, next) => {
 
 router.put('/:id', (req, res, next) => {
   try {
-    const updatedMovie = moviesMock[0].id;
+    const { id } = req.params;
+    const { body: movie } = req;
+    const updatedMovie = movieService.updateMovie(id, movie);
     res.status(200)
       .json({
         data: updatedMovie,
@@ -62,10 +67,11 @@ router.put('/:id', (req, res, next) => {
 
 router.delete('/:id', (req, res, next) => {
   try {
-    const deleteddMovie = moviesMock[0].id;
+    const { id } = req.params;
+    const deletedMovie = movieService.deleteMovie(id);
     res.status(200)
       .json({
-        data: deleteddMovie,
+        data: deletedMovie,
         message: 'Movie deleted'
       });
   } catch (e) {
